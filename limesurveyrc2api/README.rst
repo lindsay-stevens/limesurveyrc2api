@@ -10,6 +10,7 @@ The tests are a good place to refer to for api usage, until proper docs are
 written, anyway. Here is how to get a list of surveys.
 
 .. code-block:: python
+
     from limesurveyrc2api import LimeSurveyRemoteControl2API
 
     url = 'http://localhost:443/limesurvey/index.php/admin/remotecontrol'
@@ -33,14 +34,21 @@ Implemented Methods
 It's just a start, so the list of implemented methods is shorter than not.
 
 - Sessions
+
   + get_session_key
   + release_session_key
+
 - Surveys
+
   + list_surveys
+
 - Tokens
+
   + add_participants
   + delete_participants
+
 - Questions
+
   + list_questions
 
 

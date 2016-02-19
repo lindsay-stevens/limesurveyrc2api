@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="limesurveyrc2api",
-    version="1.0.0",
+    version="1.0.1",
     description="LimeSurvey RC2 API Web Services Client",
     url="https://github.com/lindsay-stevens-kirby/",
     author="Lindsay Stevens",
