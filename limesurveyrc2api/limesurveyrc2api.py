@@ -163,6 +163,28 @@ class _Tokens(object):
         response = self.api.utils.request(data)
         return response
 
+    def get_participant_properties(self, session_key, survey_id, token):
+        """
+        Returns settings of a token/participant of a survey
+
+        Parameters
+        :param session_key: Active LSRC2 session key
+        :type session_key: String
+        :param survey_id: ID of survey to get participants from.
+        :type survey_id: Integer
+        :param token: token ID for participant to get.
+        :type token: Integer
+        """
+        params = OrderedDict([
+            ('sSessionKey', session_key),
+            ('iSurveyID', survey_id),
+            ('iTokenIDs', token),
+            ('aTokenProperties', ['tid','completed','participant_id','language','usesleft','firstname','lastname','email','blacklisted','validfrom','sent','validuntil','remindersent','mpid','emailstatus','remindercount ']),
+        ])
+        data = self.api.utils.prepare_params('get_participant_properties', params)
+        response = self.api.utils.request(data)
+        return response
+
     def delete_participants(self, session_key, survey_id, tokens):
         """
         Delete participants (by token) from the specified survey.
@@ -181,6 +203,47 @@ class _Tokens(object):
             ('aTokenIDs', tokens)
         ])
         data = self.api.utils.prepare_params('delete_participants', params)
+        response = self.api.utils.request(data)
+        return response
+
+    def invite_participants(self, session_key, survey_id, tokens=False):
+        """
+        Invites participants in a survey
+        Returns array of results of sending
+
+        Parameters
+        :param session_key: Active LSRC2 session key
+        :type session_key: String
+        :param survey_id: ID of survey to invite participants from.
+        :type survey_id: Integer
+        :param tokens: List of token IDs for participants to invite.
+        :type tokens: List[Integer]
+        """
+        params = OrderedDict([
+            ('sSessionKey', session_key),
+            ('iSurveyID', survey_id),
+            ('aTokenIDs', tokens)
+        ])
+        data = self.api.utils.prepare_params('invite_participants', params)
+        response = self.api.utils.request(data)
+        return response
+
+    def remind_participants(self, session_key, survey_id):
+        """
+        Send a reminder to participants in a survey
+        Returns array of results of sending
+
+        Parameters
+        :param session_key: Active LSRC2 session key
+        :type session_key: String
+        :param survey_id: ID of survey to invite participants from.
+        :type survey_id: Integer
+        """
+        params = OrderedDict([
+            ('sSessionKey', session_key),
+            ('iSurveyID', survey_id)
+        ])
+        data = self.api.utils.prepare_params('remind_participants', params)
         response = self.api.utils.request(data)
         return response
 
