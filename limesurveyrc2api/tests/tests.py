@@ -36,7 +36,7 @@ class TestSessions(TestBase):
         """
         Requesting a session key with valid creds should return a session key.
 
-        - A. Verify the return value for bad credentials is a 32 char string.
+        - A. Verify the return value for valid credentials is a 32 char string.
         """
 
         # A
@@ -190,15 +190,19 @@ class TestTokens(TestBase):
             self.username, self.password)
         self.session_key = session.get('result')
 
-        # B TODO: derive from list_surveys() to ensure it won't be wrong
-        survey_id = 9999999
+        # B
+        surveys = self.api.surveys.list_surveys(self.session_key, self.username)
+        survey_ids = [s.get('sid') for s in surveys.get('result')]
+        # construct an invalid survey ID by taking the longest ID (these are strings) and appending a '9'
+        survey_id_invalid = sorted(survey_ids, key=len)[-1] + '9'
+
         participants = [
             {'email': 't1@test.com', 'lastname': 'LN1', 'firstname': 'FN1'},
             {'email': 't2@test.com', 'lastname': 'LN2', 'firstname': 'FN2'},
             {'email': 't3@test.com', 'lastname': 'LN3', 'firstname': 'FN3'},
         ]
         result = self.api.tokens.add_participants(
-            self.session_key, survey_id, participants)
+            self.session_key, survey_id_invalid, participants)
 
         # C
         result_value = result.get('result')
