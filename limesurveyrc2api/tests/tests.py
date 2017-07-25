@@ -137,8 +137,120 @@ class TestSurveys(TestBase):
         status = result_value.get('status')
         self.assertEqual("Invalid user", status)
 
+    def test_get_summary_success(self):
+        """
+        Get summary of a survey
+
+        - A. Get a new session key.
+        - B. Verify the result contains dict(s).
+        - C. Get survey details for first survey
+        """
+
+        # A
+        session = self.api.sessions.get_session_key(
+            self.username, self.password)
+        self.session_key = session.get('result')
+
+        # B
+        surveys = self.api.surveys.list_surveys(self.session_key, self.username)
+        survey_id = surveys.get('result')[0].get('sid')
+
+        # C
+        result_survey = self.api.surveys.get_summary(self.session_key,
+                                                     survey_id)
+        survey_details = result_survey.get('result')
+        # example response:
+        # {'token_count': '26', 'token_invalid': '0', 'token_sent': '0',
+        #  'token_opted_out': '0', 'token_completed': '0'}
+        self.assertIn('token_count', survey_details)
+        self.assertIsInstance(survey_details['token_count'], str)
+        self.assertIn('token_invalid', survey_details)
+        self.assertIsInstance(survey_details['token_invalid'], str)
+        self.assertIn('token_sent', survey_details)
+        self.assertIsInstance(survey_details['token_sent'], str)
+        self.assertIn('token_opted_out', survey_details)
+        self.assertIsInstance(survey_details['token_opted_out'], str)
+        self.assertIn('token_completed', survey_details)
+        self.assertIsInstance(survey_details['token_completed'], str)
+
+    def test_get_summary_failure(self):
+        """
+        Requesting a survey summery for an invalid survey ID should return
+        error.
+
+        - A. Get new session key.
+        - B. Construct invalid survey ID
+        - C. Verify the result status is "Invalid survey ID".
+        """
+
+        # A
+        session = self.api.sessions.get_session_key(
+            self.username, self.password)
+        self.session_key = session.get('result')
+
+        # B
+        surveys = self.api.surveys.list_surveys(self.session_key, self.username)
+        survey_ids = [s.get('sid') for s in surveys.get('result')]
+        # construct an invalid survey ID by taking the longest ID
+        # (these are strings) and appending a '9'
+        survey_id_invalid = sorted(survey_ids, key=len)[-1] + '9'
+
+        # C
+        result = self.api.surveys.get_summary(self.session_key,
+                                              survey_id_invalid)
+        result_value = result.get('result')
+        status = result_value.get('status')
+        self.assertEqual("Invalid surveyid", status)
+
 
 class TestTokens(TestBase):
+    def test_list_participants_and_get_properties(self):
+        """
+        List of participant of an survey should return the tokens.
+
+        - A. Get a new session key.
+        - B. Get the survey id.
+        - C. List participants
+        - D. List participant properties for a single participant (we need a
+            valid token ID, thus included in this test)
+        """
+
+        # A
+        session = self.api.sessions.get_session_key(
+            self.username, self.password)
+        self.session_key = session.get('result')
+
+        # B
+        surveys = self.api.surveys.list_surveys(self.session_key, self.username)
+        survey_id = surveys.get('result')[0].get('sid')
+
+        # C
+        participants = self.api.tokens.list_participants(self.session_key,
+                                                         survey_id)
+        participants_result = participants.get('result')
+        self.assertIsNot(len(participants_result), 0)
+        self.assertIn('tid', participants_result[0])
+        self.assertIn('token', participants_result[0])
+        self.assertIn('participant_info', participants_result[0])
+        # By default, only 3 participant properties are returned
+        self.assertIn('firstname', participants_result[0]['participant_info'])
+        self.assertIn('lastname', participants_result[0]['participant_info'])
+        self.assertIn('email', participants_result[0]['participant_info'])
+        self.assertNotIn('language', participants_result[0]['participant_info'])
+        token_id = participants_result[0]['tid']
+
+        # D
+        participant = self.api.tokens.get_participant_properties(
+            self.session_key,
+            survey_id,
+            token_id
+        )
+        participant_result = participant.get('result')
+        self.assertIn('tid', participant_result)
+        self.assertEqual(participant_result['tid'], token_id)
+        # By default, all participant properties are returned
+        self.assertIn('language', participant_result)
+        self.assertIn('remindercount', participant_result)
 
     def test_add_participants_success(self):
         """
@@ -193,7 +305,8 @@ class TestTokens(TestBase):
         # B
         surveys = self.api.surveys.list_surveys(self.session_key, self.username)
         survey_ids = [s.get('sid') for s in surveys.get('result')]
-        # construct an invalid survey ID by taking the longest ID (these are strings) and appending a '9'
+        # construct an invalid survey ID by taking the longest ID
+        # (these are strings) and appending a '9'
         survey_id_invalid = sorted(survey_ids, key=len)[-1] + '9'
 
         participants = [
@@ -311,7 +424,6 @@ class TestTokens(TestBase):
 
 
 class TestQuestions(TestBase):
-
     def test_list_questions_success(self):
         """
         Request to list questions for a valid survey should return the list.
