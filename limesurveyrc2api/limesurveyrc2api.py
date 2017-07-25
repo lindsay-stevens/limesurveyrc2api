@@ -134,11 +134,98 @@ class _Surveys(object):
         response = self.api.utils.request(data)
         return response
 
+    def get_summary(self, session_key, survey_id):
+        """
+        Get participant properties in a survey.
+
+        Parameters
+        :param session_key: Active LSRC2 session key
+        :type session_key: String
+        :param survey_id: ID of survey
+        :type survey_id: Integer
+
+        :return: dict with keys 'token_count', 'token_invalid', 'token_sent',
+            'token_opted_out', and 'token_completed' with strings as values.
+        """
+        params = OrderedDict([
+            ('sSessionKey', session_key),
+            ('iSurveyID', survey_id)
+        ])
+        data = self.api.utils.prepare_params('get_summary', params)
+        response = self.api.utils.request(data)
+        return response
+
 
 class _Tokens(object):
 
     def __init__(self, lime_survey_api):
         self.api = lime_survey_api
+
+    def get_participant_properties(self, session_key, survey_id, token_id):
+        """
+        Get participant properties in a survey.
+
+        Parameters
+        :param session_key: Active LSRC2 session key
+        :type session_key: String
+        :param survey_id: ID of survey
+        :type survey_id: Integer
+        :param token_id: ID of the token to lookup
+        :type token_id: Integer
+
+        :return: Dict with all participant properties
+        """
+        params = OrderedDict([
+            ('sSessionKey', session_key),
+            ('iSurveyID', survey_id),
+            ('aTokenQueryProperties', {'tid': token_id})
+        ])
+        data = self.api.utils.prepare_params('get_participant_properties',
+                                             params)
+        response = self.api.utils.request(data)
+        return response
+
+    def list_participants(self, session_key, survey_id, start=0, limit=1000,
+                          ignore_token_used=False, attributes=False,
+                          conditions=None):
+        """
+        List participants in a survey.
+
+        Parameters
+        :param session_key: Active LSRC2 session key
+        :type session_key: String
+        :param survey_id: ID of survey
+        :type survey_id: Integer
+        :param start: Index of first token to retrieve
+        :type start: Integer
+        :param limit: Number of tokens to retrieve
+        :type limit: Integer
+        :param ignore_token_used: If True, tokens that have been used are not
+            returned
+        :type ignore_token_used: Integer
+
+        :param attributes: The extended attributes that we want
+        :type attributes: List[String]
+        :param conditions: (optional) conditions to limit the list,
+            e.g. {'email': 't1@test.com'}
+        :type conditions: List[Dict]
+
+        :return: List of dictionaries
+
+        """
+        conditions = conditions or []
+        params = OrderedDict([
+            ('sSessionKey', session_key),
+            ('iSurveyID', survey_id),
+            ('iStart', start),
+            ('iLimit', limit),
+            ('bUnused', ignore_token_used),
+            ('aAttributes', attributes),
+            ('aConditions', conditions)
+        ])
+        data = self.api.utils.prepare_params('list_participants', params)
+        response = self.api.utils.request(data)
+        return response
 
     def add_participants(self, session_key, survey_id, participant_data,
                          create_token_key=True):
