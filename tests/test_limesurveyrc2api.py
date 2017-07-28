@@ -1,7 +1,7 @@
 import os
 import unittest
 from operator import itemgetter
-from limesurveyrc2api.limesurveyrc2api import LimeSurveyRemoteControl2API
+from limesurveyrc2api import LimeSurveyRemoteControl2API
 from configparser import ConfigParser
 
 
@@ -13,7 +13,8 @@ class TestBase(unittest.TestCase):
         current_dir = os.path.dirname(os.path.realpath(__file__))
         config_path = os.path.join(current_dir, 'config.ini')
         confparser = ConfigParser()
-        confparser.read_file(open(config_path))
+        with open(config_path, "r") as config_file:
+            confparser.read_file(config_file)
         self.url = confparser['test']['url']
         self.username = confparser['test']['username']
         self.password = confparser['test']['password']
@@ -36,7 +37,7 @@ class TestSessions(TestBase):
         """
         Requesting a session key with valid creds should return a session key.
 
-        - A. Verify the return value for bad credentials is a 32 char string.
+        - A. Verify the return value for valid credentials is a 32 char string.
         """
 
         # A

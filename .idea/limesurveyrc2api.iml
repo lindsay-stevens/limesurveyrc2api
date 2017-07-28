@@ -2,19 +2,19 @@
 <module type="JAVA_MODULE" version="4">
   <component name="FacetManager">
     <facet type="Python" name="Python">
-      <configuration sdkName="Python 3.4.3 virtualenv at C:\Users\Lstevens\Documents\repos\cease\venv" />
+      <configuration sdkName="Python 3.5.2 virtualenv at D:\repos\limesurveyrc2api\venv" />
     </facet>
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/limesurveyrc2api/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/limesurveyrc2api" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/dist" />
       <excludeFolder url="file://$MODULE_DIR$/limesurveyrc2api.egg-info" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Python 3.4.3 virtualenv at C:\Users\Lstevens\Documents\repos\cease\venv interpreter library" level="application" />
+    <orderEntry type="library" name="Python 3.5.2 virtualenv at D:\repos\limesurveyrc2api\venv interpreter library" level="application" />
   </component>
 </module>

@@ -1,5 +1,0 @@
-include LICENSE
-include README.rst
-recursive-include limesurveyrc2api *
-recursive-exclude limesurveyrc2api *.pyc
-
