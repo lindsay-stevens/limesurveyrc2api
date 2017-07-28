@@ -3,6 +3,11 @@ import json
 from collections import OrderedDict
 
 
+class LimeSurveyError(Exception):
+    """Base class for exceptions in LimeSurvey."""
+    pass
+
+
 class LimeSurveyRemoteControl2API(object):
 
     def __init__(self, url):
@@ -19,42 +24,10 @@ class _Utils(object):
 
     def __init__(self, lime_survey_api):
         self.api = lime_survey_api
-    
-    def request(self, data, url=None, headers=None):
+
+    def query(self, method, params):
         """
-        Return the result of an API call, or None.
-
-        Exceptions are logged rather than raised.
-
-        Parameters
-        :param data: Method name and parameters to send to the API.
-        :type data: String
-        :param url: Location of the LimeSurvey API endpoint.
-        :type url: String
-        :param headers: HTTP headers to add to the request.
-        :type headers: Dict
-
-        Return
-        :return: Dictionary containing result of API call, or None.
-        """
-        if url is None:
-            url = self.api.url
-        if headers is None:
-            headers = self.api.headers
-        return_value = None
-        try:
-            response = requests.post(url, headers=headers, data=data)
-            if len(response.content) > 0:
-                return_value = response.json()
-        except requests.ConnectionError as pe:
-            # TODO: some handling here
-            return_value = None
-        return return_value
-
-    @staticmethod
-    def prepare_params(method, params):
-        """
-        Prepare remote procedure call parameter dictionary.
+        Query the LimeSurvey API
 
         Important! Despite being provided as key-value, the API treats all
         parameters as positional. OrderedDict should be used to ensure this,
@@ -67,15 +40,28 @@ class _Utils(object):
         :type params: OrderedDict
 
         Return
-        :return: JSON encoded string with method and parameters.
+        :return: result of API call
+        :raise: requests.ConnectionError
+        :raise: LimeSurveyError if the API returns an error (either http error
+            or error message in body)
         """
+        # 1. Prepare the request data
         data = OrderedDict([
             ('method', method),
             ('params', params),
-            ('id', 1)
+            ('id', 1)  # Query ID - corresponding response will have the same ID
         ])
-        data_json = json.dumps(data)
-        return data_json
+        # 2. Query the API
+        response = requests.post(self.api.url, headers=self.api.headers, data=json.dumps(data))
+        response_content = response.json()
+
+        # 3. Evaluate the response
+        if not response.ok or response_content.get('error'):
+            raise LimeSurveyError(
+                "Error during query to '{}':{} {}".format(
+                    self.api.url, response.status_code, response_content))
+
+        return response_content
 
 
 class _Sessions(object):
@@ -97,18 +83,14 @@ class _Sessions(object):
             ("username", username),
             ("password", password)
         ])
-        data = self.api.utils.prepare_params('get_session_key', params)
-        response = self.api.utils.request(data)
-        return response
+        return self.api.utils.query('get_session_key', params)
 
     def release_session_key(self, session_key):
         """
         Close an open session.
         """
         params = {'sSessionKey': session_key}
-        data = self.api.utils.prepare_params('release_session_key', params)
-        response = self.api.utils.request(data)
-        return response
+        return self.api.utils.query('release_session_key', params)
 
 
 class _Surveys(object):
@@ -130,9 +112,7 @@ class _Surveys(object):
             ('sSessionKey', session_key),
             ('iSurveyID', username)
         ])
-        data = self.api.utils.prepare_params('list_surveys', params)
-        response = self.api.utils.request(data)
-        return response
+        return self.api.utils.query('list_surveys', params)
 
     def get_summary(self, session_key, survey_id):
         """
@@ -151,9 +131,7 @@ class _Surveys(object):
             ('sSessionKey', session_key),
             ('iSurveyID', survey_id)
         ])
-        data = self.api.utils.prepare_params('get_summary', params)
-        response = self.api.utils.request(data)
-        return response
+        return self.api.utils.query('get_summary', params)
 
 
 class _Tokens(object):
@@ -180,10 +158,8 @@ class _Tokens(object):
             ('iSurveyID', survey_id),
             ('aTokenQueryProperties', {'tid': token_id})
         ])
-        data = self.api.utils.prepare_params('get_participant_properties',
+        return self.api.utils.query('get_participant_properties',
                                              params)
-        response = self.api.utils.request(data)
-        return response
 
     def list_participants(self, session_key, survey_id, start=0, limit=1000,
                           ignore_token_used=False, attributes=False,
@@ -223,9 +199,7 @@ class _Tokens(object):
             ('aAttributes', attributes),
             ('aConditions', conditions)
         ])
-        data = self.api.utils.prepare_params('list_participants', params)
-        response = self.api.utils.request(data)
-        return response
+        return self.api.utils.query('list_participants', params)
 
     def add_participants(self, session_key, survey_id, participant_data,
                          create_token_key=True):
@@ -246,9 +220,7 @@ class _Tokens(object):
             ('aParticipantData', participant_data),
             ('bCreateToken', create_token_key)
         ])
-        data = self.api.utils.prepare_params('add_participants', params)
-        response = self.api.utils.request(data)
-        return response
+        return self.api.utils.query('add_participants', params)
 
     def delete_participants(self, session_key, survey_id, tokens):
         """
@@ -267,9 +239,7 @@ class _Tokens(object):
             ('iSurveyID', survey_id),
             ('aTokenIDs', tokens)
         ])
-        data = self.api.utils.prepare_params('delete_participants', params)
-        response = self.api.utils.request(data)
-        return response
+        return self.api.utils.query('delete_participants', params)
 
 
 class _Questions(object):
@@ -299,6 +269,4 @@ class _Questions(object):
             ('iGroupID', group_id),
             ('sLanguage', language)
         ])
-        data = self.api.utils.prepare_params('list_questions', params)
-        response = self.api.utils.request(data)
-        return response
+        return self.api.utils.query('list_questions', params)

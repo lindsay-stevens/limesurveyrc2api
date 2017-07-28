@@ -1,7 +1,7 @@
 import os
 import unittest
 from operator import itemgetter
-from limesurveyrc2api.limesurveyrc2api import LimeSurveyRemoteControl2API
+from limesurveyrc2api import LimeSurveyRemoteControl2API
 from configparser import ConfigParser
 
 
