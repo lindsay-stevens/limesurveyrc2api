@@ -9,22 +9,23 @@ This module provides a class which can be used as a client for interacting with 
 The tests are a good place to refer to for api usage, until proper docs are written, anyway. Here is how to get a list of surveys.
 
 ```python
-from limesurveyrc2api import LimeSurveyRemoteControl2API
+from limesurveyrc2api.limesurvey import LimeSurvey
 
 url = 'http://localhost:443/limesurvey/index.php/admin/remotecontrol'
 username = 'admin'
 password = 'admin'
 
-# Make a session.
-api = LimeSurveyRemoteControl2API(url)
-session_req = api.sessions.get_session_key(username, password)
-session_key = session_req.get('result')
+# Open a session.
+api = LimeSurvey(url=url, username=username)
+api.open(password=self.password)
 
 # Get a list of surveys the admin can see, and print their IDs.
-surveys_req = api.surveys.list_surveys(session_key, username)
-surveys = surveys_req.get('result')
-for survey in surveys:
+result = self.api.survey.list_surveys()
+for survey in result:
     print(survey.get('sid'))
+
+# Close the session.
+api.close()
 ```
 
 ## Implemented Methods
