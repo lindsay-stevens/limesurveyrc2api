@@ -17,7 +17,7 @@ password = 'admin'
 
 # Open a session.
 api = LimeSurvey(url=url, username=username)
-api.open(password=self.password)
+api.open(password=password)
 
 # Get a list of surveys the admin can see, and print their IDs.
 result = self.api.survey.list_surveys()
