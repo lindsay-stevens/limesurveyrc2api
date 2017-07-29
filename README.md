@@ -44,7 +44,8 @@ It's just a start, so the list of implemented methods is shorter than not.
 
 
 ## Running Tests
-- Edit the tests/config.ini with the details of a RC2API enabled LimeSurvey installation.
+- Copy tests/config.ini.tmpl to tests/config.ini and edit it with the details of 
+   a RC2API enabled LimeSurvey installation.
   - To enable, login as admin, go to Configuration -> Global Settings -> Interfaces -> RPC interface enabled: JSON-RPC -> Save
 - Make sure there is at least 1 survey loaded in the installation (once the create survey method is implemented, that could be used instead).
 - Run the tests.py script.
