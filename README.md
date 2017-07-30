@@ -2,18 +2,20 @@
 
 
 ## Introduction
+
 This module provides a class which can be used as a client for interacting with LimeSurvey Remote Control 2 API.
 
 
-## Example Usage
+### Example Usage
+
 The tests are a good place to refer to for api usage, until proper docs are written, anyway. Here is how to get a list of surveys.
 
 ```python
 from limesurveyrc2api.limesurvey import LimeSurvey
 
-url = 'http://localhost:443/limesurvey/index.php/admin/remotecontrol'
-username = 'admin'
-password = 'admin'
+url = "http://localhost:443/limesurvey/index.php/admin/remotecontrol"
+username = "admin"
+password = "admin"
 
 # Open a session.
 api = LimeSurvey(url=url, username=username)
@@ -22,35 +24,76 @@ api.open(password=password)
 # Get a list of surveys the admin can see, and print their IDs.
 result = self.api.survey.list_surveys()
 for survey in result:
-    print(survey.get('sid'))
+    print(survey.get("sid"))
 
 # Close the session.
 api.close()
 ```
 
-## Implemented Methods
+### Implemented Methods
+
 It's just a start, so the list of implemented methods is shorter than not.
 
 - Sessions
-  + get_session_key
-  + release_session_key
-- Surveys
+  + get_session_key (api.open)
+  + release_session_key (api.close)
+- Survey
   + list_surveys
-- Tokens
+  + list_questions
+- Token
   + add_participants
   + delete_participants
-- Questions
-  + list_questions
+  + get_participant_properties
 
 
-## Running Tests
-- Copy tests/config.ini.tmpl to tests/config.ini and edit it with the details of 
+### Error Handling
+
+Where possible, error messages from the RC2API are translated into Python exceptions (specifically, a `LimeSurveyError`), with the caller method and error message included in the exception message plus any other relevant info.
+
+
+
+## Development
+
+
+### References
+
+Useful references for the RC2API:
+
+- [Handler script](https://github.com/LimeSurvey/LimeSurvey/blob/master/application/helpers/remotecontrol/remotecontrol_handle.php)
+- [Server script](https://github.com/LimeSurvey/LimeSurvey/blob/master/application/libraries/LSjsonRPCServer.php)
+- [Manual page](https://manual.limesurvey.org/RemoteControl_2_API)
+- [Generated api doc](https://api.limesurvey.org/classes/remotecontrol_handle.html)
+
+
+### Discovering Error Messages
+
+If extending or maintaining this project, be aware that discovering error messages to raise an exception from is a relatively tedious process. It involves reading through the handler script, looking for lines like the following.
+
+```php
+return array('status' => 'No permission');
+```
+
+Whether or not the message is an error depends on the context of the line and the message text. For example, some RC2API methods that delete objects return a message that looks like an error but indicate success, e.g. "status": "OK".
+
+
+### Running Tests
+
+- Copy tests/config.ini.tmpl to tests/config.ini and edit it with the details of
    a RC2API enabled LimeSurvey installation.
-  - To enable, login as admin, go to Configuration -> Global Settings -> Interfaces -> RPC interface enabled: JSON-RPC -> Save
+  - To enable the RC2API, login to LimeSurvey as an admin, go to Configuration -> Global Settings -> Interfaces -> RPC interface enabled: JSON-RPC -> Save
 - Make sure there is at least 1 survey loaded in the installation (once the create survey method is implemented, that could be used instead).
-- Run the tests.py script.
+- From the project root folder, run the tests either:
+  - For minimal result info: `python -m unittest`
+  - For more detailed info: `python setup.py test`
 
 
 ### Test Problems
 
 There is a PHP 5.6.0+ issue where the API response value includes a deprecation warning, which breaks the JSON response parsing. To deal with this, ensure that the following `php.ini` setting is set: `always_populate_raw_post_data = -1`.
+
+
+### Intellij Setup
+
+Project setup for IDEA requires defining a "project SDK", under File -> Project Structure -> Project. Since this is a Python project, the SDK is the interpreter you want to use, which could (should) be a virtual environment interpreter.
+
+Since the SDK setting is user specific, it'll need to be created the first time you load up this project. This should create an entry under Platform Settings -> Global Libraries; and a file /.idea/misc.xml, containing the name of the global library (SDK) selected for this project.
