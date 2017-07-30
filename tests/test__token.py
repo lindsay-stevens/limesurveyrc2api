@@ -75,7 +75,7 @@ class TestTokens(TestBase):
             self.assertEqual("Invalid token ID", token_result)
 
     def test_get_participant_properties_success(self):
-        """Getting a token from a survey should return its properties."""
+        """Querying for a unique token should return its properties."""
         added_tokens = self.api.token.add_participants(
             survey_id=self.survey_id, participant_data=self.participants)
         self.token_ids = [x["tid"] for x in added_tokens]
@@ -85,6 +85,23 @@ class TestTokens(TestBase):
         token0_props = self.api.token.get_participant_properties(
             survey_id=self.survey_id, token_id=token0["tid"])
         self.assertEqual(participant0["email"], token0_props["email"])
+
+    def test_get_participant_properties_duplicate_failure(self):
+        """Querying on a property with >1 results should return an error."""
+        participants = self.participants.append(self.participants[0])
+        added_tokens = self.api.token.add_participants(
+            survey_id=self.survey_id, participant_data=participants)
+        self.token_ids = [x["tid"] for x in added_tokens]
+
+        token_query_dict = {"email": self.participants[0]["email"]}
+
+        with self.assertRaises(LimeSurveyError) as lse:
+            self.api.token.get_participant_properties(
+                survey_id=self.survey_id, token_id=None,
+                token_query_dict=token_query_dict)
+        self.assertIn(
+            "Error: More than 1 result was found based on your attributes.",
+            lse.exception.message)
 
     def test_invite_participants_success(self):
         """Sending invites for survey participants should relay all invites."""

@@ -79,31 +79,41 @@ class _Token(object):
         assert response_type is dict
         return response
 
-    def get_participant_properties(self, survey_id, token_id):
+    def get_participant_properties(
+            self, survey_id, token_id, token_query_dict=None):
         """
         Get participant properties (by token) from the specified survey.
 
-        For token properties, could choose from:
+        Provide either token_id or token_query_dict, not both.
 
-        ('aTokenProperties', [
-                "blacklisted", "completed", "email", "emailstatus", "firstname",
-                "language", "lastname", "mpid", "participant_id",
-                "remindercount", "remindersent", "sent", "tid", "token",
-                "usesleft", "validfrom", "validuntil"])
+        For token properties for querying and return, choose from:
+
+        ["blacklisted", "completed", "email", "emailstatus", "firstname",
+         "language", "lastname", "mpid", "participant_id", "remindercount",
+         "remindersent", "sent", "tid", "token", "usesleft", "validfrom",
+         "validuntil"]
 
         Parameters
-        :param survey_id: ID of survey to delete participants from.
+        :param survey_id: ID of survey to get participant properties for.
         :type survey_id: Integer
-        :param token_id: ID of survey to delete participants from.
+        :param token_id: ID of participant to get properties for.
         :type token_id: Integer
+        :param token_query_dict: Key(s) / value(s) to use for finding the
+          participant among all those that are in the survey.
+        :type token_query_dict: Dict[String, Any]
         """
         method = "get_participant_properties"
-        # TODO: RPC method can accept more query params than just the token_id
-        # It gets a bit more complicated to test, more possible error messages
+        if token_query_dict is None:
+            token_query_dict = {"tid": token_id}
+        if token_id is not None and token_query_dict is not None:
+            raise ValueError(
+                "Provide either token_id or token_query_dict, not both.")
+
         params = OrderedDict([
             ('sSessionKey', self.api.session_key),
             ('iSurveyID', survey_id),
-            ('aTokenQueryProperties', {"tid": token_id})
+            ('aTokenQueryProperties', token_query_dict),
+            ('aTokenProperties', [])
         ])
         response = self.api.query(method=method, params=params)
         response_type = type(response)
@@ -113,7 +123,10 @@ class _Token(object):
             error_messages = [
                 "Error: Invalid survey ID",
                 "Error: No token table",
+                "Error: No results were found based on your attributes.",
+                "Error: More than 1 result was found based on your attributes.",
                 "Error: Invalid tokenid",
+                "No valid Data",
                 "No permission",
                 "Invalid Session Key"
             ]
@@ -165,8 +178,8 @@ class _Token(object):
 
     def list_participants(self):
         # TODO
-        pass
+        raise NotImplementedError
 
     def get_summary(self):
         # TODO
-        pass
+        raise NotImplementedError
