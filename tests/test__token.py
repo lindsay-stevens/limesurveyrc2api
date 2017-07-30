@@ -242,11 +242,12 @@ class TestTokens(TestBase):
         """Query for all participants should return added token ids."""
         added_tokens = self.api.token.add_participants(
             survey_id=self.survey_id, participant_data=self.participants)
-        self.token_ids = [int(x["tid"]) for x in added_tokens]
+        added_token_ids = [x["tid"] for x in added_tokens]
 
         result = self.api.token.list_participants(survey_id=self.survey_id)
         result_token_ids = [x["tid"] for x in result]
-        self.assertListEqual(self.token_ids, result_token_ids)
+        for token_id in added_token_ids:
+            self.assertIn(token_id, result_token_ids)
 
     def test_list_participants_conditions_failure(self):
         """Querying with a condition matching none should result in an error."""
