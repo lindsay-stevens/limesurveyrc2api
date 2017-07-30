@@ -30,6 +30,33 @@ class TestTokens(TestBase):
             pass  # Passing None for tokens param -> empty list -> assert error.
         super().tearDown()
 
+    def test_get_summary(self):
+        """
+        Get summary of a survey
+        """
+        surveys = self.api.survey.list_surveys()
+        survey_id = surveys[0].get('sid')
+        survey_summary = self.api.token.get_summary(survey_id)
+        # example response:
+        # {'token_count': '26', 'token_invalid': '0', 'token_sent': '0',
+        #  'token_opted_out': '0', 'token_completed': '0'}
+        self.assertIn('token_count', survey_summary)
+        self.assertIsInstance(survey_summary['token_count'], str)
+        self.assertIn('token_invalid', survey_summary)
+        self.assertIsInstance(survey_summary['token_invalid'], str)
+        self.assertIn('token_sent', survey_summary)
+        self.assertIsInstance(survey_summary['token_sent'], str)
+        self.assertIn('token_opted_out', survey_summary)
+        self.assertIsInstance(survey_summary['token_opted_out'], str)
+        self.assertIn('token_completed', survey_summary)
+        self.assertIsInstance(survey_summary['token_completed'], str)
+
+        # error cases
+        # invalid summary
+        with self.assertRaises(LimeSurveyError) as ctx:
+            self.api.token.get_summary(TestBase.get_invalid_survey_id(surveys))
+        self.assertIn('Invalid surveyid', ctx.exception.message)
+
     def test_add_participants_success(self):
         """Adding participants to a survey should return their tokens."""
         added_tokens = self.api.token.add_participants(

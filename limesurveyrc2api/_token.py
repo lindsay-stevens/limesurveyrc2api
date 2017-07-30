@@ -7,6 +7,27 @@ class _Token(object):
     def __init__(self, api):
         self.api = api
 
+    def get_summary(self, survey_id):
+        """
+        Get participant properties of a survey.
+
+        Parameters
+        :param survey_id: ID of survey
+        :type survey_id: Integer
+
+        :return: dict with keys 'token_count', 'token_invalid', 'token_sent',
+            'token_opted_out', and 'token_completed' with strings as values.
+        """
+        method = "get_summary"
+        params = OrderedDict([
+            ('sSessionKey', self.api.session_key),
+            ('iSurveyID', survey_id)
+        ])
+        response = self.api.query(method=method, params=params)
+        if type(response) is dict and "status" in response:
+            raise LimeSurveyError(method, response["status"])
+        return response
+
     def add_participants(
             self, survey_id, participant_data, create_token_key=True):
         """
@@ -234,9 +255,5 @@ class _Token(object):
         return response
 
     def remind_participants(self):
-        # TODO
-        raise NotImplementedError
-
-    def get_summary(self):
         # TODO
         raise NotImplementedError
