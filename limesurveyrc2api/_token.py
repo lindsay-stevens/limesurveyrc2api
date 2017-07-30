@@ -80,7 +80,8 @@ class _Token(object):
         return response
 
     def get_participant_properties(
-            self, survey_id, token_id, token_query_dict=None):
+            self, survey_id, token_id, token_query_properties=None,
+            token_properties=None):
         """
         Get participant properties (by token) from the specified survey.
 
@@ -98,22 +99,25 @@ class _Token(object):
         :type survey_id: Integer
         :param token_id: ID of participant to get properties for.
         :type token_id: Integer
-        :param token_query_dict: Key(s) / value(s) to use for finding the
+        :param token_query_properties: Key(s) / value(s) to use for finding the
           participant among all those that are in the survey.
-        :type token_query_dict: Dict[String, Any]
+        :type token_query_properties: Dict[String, Any]
+        :param token_properties: Keys to return from RPC call.
+        :type token_properties: List[String]
         """
         method = "get_participant_properties"
-        if token_id is not None and token_query_dict is not None:
+        if token_id is not None and token_query_properties is not None:
             raise ValueError(
                 "Provide either token_id or token_query_dict, not both.")
-        if token_query_dict is None:
-            token_query_dict = {"tid": token_id}
+        if token_query_properties is None:
+            token_query_properties = {"tid": token_id}
+        token_properties = token_properties or []
 
         params = OrderedDict([
             ('sSessionKey', self.api.session_key),
             ('iSurveyID', survey_id),
-            ('aTokenQueryProperties', token_query_dict),
-            ('aTokenProperties', [])
+            ('aTokenQueryProperties', token_query_properties),
+            ('aTokenProperties', token_properties)
         ])
         response = self.api.query(method=method, params=params)
         response_type = type(response)
@@ -176,7 +180,60 @@ class _Token(object):
         assert response_type is dict
         return response
 
-    def list_participants(self):
+    def list_participants(
+            self, survey_id, start=0, limit=1000, ignore_token_used=False,
+            attributes=False, conditions=None):
+        """
+        List participants in a survey.
+
+        Parameters
+        :param survey_id: ID of survey to invite participants from.
+        :type survey_id: Integer
+        :param start: Index of first token to retrieve.
+        :type start: Integer
+        :param limit: Number of tokens to retrieve.
+        :type limit: Integer
+        :param ignore_token_used: If True, tokens that have been used are not
+          returned.
+        :type ignore_token_used: Integer
+        :param attributes: The extended attributes to include in the response.
+        :type attributes: List[String]
+        :param conditions: Key(s) / value(s) to use for finding the
+          participant among all those that are in the survey.
+        :type conditions: List[Dict]
+        """
+        method = "list_participants"
+        conditions = conditions or []
+        params = OrderedDict([
+            ('sSessionKey', self.api.session_key),
+            ('iSurveyID', survey_id),
+            ('iStart', start),
+            ('iLimit', limit),
+            ('bUnused', ignore_token_used),
+            ('aAttributes', attributes),
+            ('aConditions', conditions)
+        ])
+        response = self.api.query(method=method, params=params)
+        response_type = type(response)
+
+        if response_type is dict and "status" in response:
+            status = response["status"]
+            error_messages = [
+                "Error: Invalid survey ID",
+                "Error: No token table",
+                "No survey participants found.",
+                "Invalid session key",
+                "No permission",
+                "Invalid Session Key"
+            ]
+            for message in error_messages:
+                if status == message:
+                    raise LimeSurveyError(method, status)
+
+        assert response_type is list
+        return response
+
+    def remind_participants(self):
         # TODO
         raise NotImplementedError
 

@@ -93,12 +93,12 @@ class TestTokens(TestBase):
             survey_id=self.survey_id, participant_data=self.participants)
         self.token_ids = [x["tid"] for x in added_tokens]
 
-        token_query_dict = {"email": self.participants[0]["email"]}
+        token_query_properties = {"email": self.participants[0]["email"]}
 
         with self.assertRaises(LimeSurveyError) as lse:
             self.api.token.get_participant_properties(
                 survey_id=self.survey_id, token_id=None,
-                token_query_dict=token_query_dict)
+                token_query_properties=token_query_properties)
         self.assertIn(
             "Error: More than 1 result was found based on your attributes.",
             lse.exception.message)
@@ -160,3 +160,24 @@ class TestTokens(TestBase):
                 survey_id=self.survey_id, token_ids=self.token_ids,
                 uninvited_only=False)
         self.assertEqual(len(self.participants), len(cas.messages))
+
+    def test_list_participants_success(self):
+        """Query for all participants should return added token ids."""
+        added_tokens = self.api.token.add_participants(
+            survey_id=self.survey_id, participant_data=self.participants)
+        self.token_ids = [int(x["tid"]) for x in added_tokens]
+
+        result = self.api.token.list_participants(survey_id=self.survey_id)
+        result_token_ids = [x["tid"] for x in result]
+        self.assertListEqual(self.token_ids, result_token_ids)
+
+    def test_list_participants_conditions_failure(self):
+        """Querying with a condition matching none should result in an error."""
+        added_tokens = self.api.token.add_participants(
+            survey_id=self.survey_id, participant_data=self.participants)
+        self.token_ids = [int(x["tid"]) for x in added_tokens]
+
+        with self.assertRaises(LimeSurveyError) as lse:
+            self.api.token.list_participants(
+                survey_id=self.survey_id, conditions={"email": "not_an_email"})
+        self.assertIn("No survey participants found.", lse.exception.message)
