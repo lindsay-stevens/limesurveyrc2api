@@ -38,8 +38,8 @@ class LimeSurvey(object):
             for message in error_messages:
                 if status == message:
                     raise LimeSurveyError(method, status)
-
-        assert response_type is str
+        else:
+            assert response_type is str
         self.session_key = response
 
     def query(self, method, params):

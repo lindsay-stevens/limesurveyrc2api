@@ -33,8 +33,8 @@ class _Survey(object):
             for message in error_messages:
                 if status == message:
                     raise LimeSurveyError(method, status)
-
-        assert response_type is list
+        else:
+            assert response_type is list
         return response
 
     def list_questions(self, survey_id,
@@ -73,6 +73,6 @@ class _Survey(object):
             for message in error_messages:
                 if status == message:
                     raise LimeSurveyError(method, status)
-
-        assert response_type is list
+        else:
+            assert response_type is list
         return response

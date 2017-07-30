@@ -41,8 +41,8 @@ class _Token(object):
             for message in error_messages:
                 if status == message:
                     raise LimeSurveyError(method, status)
-
-        assert response_type is list
+        else:
+            assert response_type is list
         return response
 
     def delete_participants(self, survey_id, token_ids):
@@ -75,8 +75,8 @@ class _Token(object):
             for message in error_messages:
                 if status == message:
                     raise LimeSurveyError(method, status)
-
-        assert response_type is dict
+        else:
+            assert response_type is dict
         return response
 
     def get_participant_properties(
@@ -137,8 +137,8 @@ class _Token(object):
             for message in error_messages:
                 if status == message:
                     raise LimeSurveyError(method, status)
-
-        assert response_type is dict
+        else:
+            assert response_type is dict
         return response
 
     def invite_participants(self, survey_id, token_ids, uninvited_only=True):
@@ -176,8 +176,8 @@ class _Token(object):
             for message in error_messages:
                 if status == message:
                     raise LimeSurveyError(method, status)
-
-        assert response_type is dict
+        else:
+            assert response_type is dict
         return response
 
     def list_participants(
@@ -229,8 +229,8 @@ class _Token(object):
             for message in error_messages:
                 if status == message:
                     raise LimeSurveyError(method, status)
-
-        assert response_type is list
+        else:
+            assert response_type is list
         return response
 
     def remind_participants(self):
