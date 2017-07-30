@@ -1,6 +1,7 @@
 from tests.test_limesurvey import TestBase
 from limesurveyrc2api.limesurvey import LimeSurveyError
 from operator import itemgetter
+from tests.utils import CapturingAiosmtpdServer
 
 
 class TestTokens(TestBase):
@@ -11,16 +12,17 @@ class TestTokens(TestBase):
         surveys = self.api.survey.list_surveys()
         self.survey_id = surveys[0].get('sid')
         self.participants = [
-            {'email': 't1@test.com', 'lastname': 'LN1', 'firstname': 'FN1'},
-            {'email': 't2@test.com', 'lastname': 'LN2', 'firstname': 'FN2'},
-            {'email': 't3@test.com', 'lastname': 'LN3', 'firstname': 'FN3'},
+            {'email': 't1@example.com', 'lastname': 'LN1', 'firstname': 'FN1'},
+            {'email': 't2@example.com', 'lastname': 'LN2', 'firstname': 'FN2'},
+            {'email': 't3@example.com', 'lastname': 'LN3', 'firstname': 'FN3'},
         ]
         self.token_ids = None  # Assign to this for deletion in tearDown
 
     def tearDown(self):
         try:
-            self.api.token.delete_participants(
-                survey_id=self.survey_id, tokens=self.token_ids)
+            if self.token_ids is not None:
+                self.api.token.delete_participants(
+                    survey_id=self.survey_id, token_ids=self.token_ids)
         except LimeSurveyError:
             pass  # Deletion didn't work because none were created.
         except AssertionError:
@@ -56,7 +58,7 @@ class TestTokens(TestBase):
         self.token_ids = [x["tid"] for x in added_tokens]
 
         deleted = self.api.token.delete_participants(
-            survey_id=self.survey_id, tokens=self.token_ids)
+            survey_id=self.survey_id, token_ids=self.token_ids)
         for token_id, token_result in deleted.items():
             self.assertIn(token_id, self.token_ids)
             self.assertEqual("Deleted", token_result)
@@ -67,7 +69,7 @@ class TestTokens(TestBase):
         tokens = [92929292, 929292945, 2055031111]
 
         result = self.api.token.delete_participants(
-            survey_id=self.survey_id, tokens=tokens)
+            survey_id=self.survey_id, token_ids=tokens)
         for token_id, token_result in result.items():
             self.assertIn(int(token_id), tokens)
             self.assertEqual("Invalid token ID", token_result)
@@ -83,3 +85,20 @@ class TestTokens(TestBase):
         token0_props = self.api.token.get_participant_properties(
             survey_id=self.survey_id, token_id=token0["tid"])
         self.assertEqual(participant0["email"], token0_props["email"])
+
+    def test_invite_participants_success(self):
+        """Sending invites for survey participants should relay all invites."""
+        added_tokens = self.api.token.add_participants(
+            survey_id=self.survey_id, participant_data=self.participants)
+        self.token_ids = [x["tid"] for x in added_tokens]
+
+        with CapturingAiosmtpdServer() as cas:
+            message_statuses = self.api.token.invite_participants(
+                survey_id=self.survey_id, token_ids=self.token_ids,
+                uninvited_only=True)
+        self.assertEqual(len(self.participants), len(cas.messages))
+        overall_status = message_statuses.pop("status")
+        self.assertEqual("0 left to send", overall_status)
+        for token_id, email_info in message_statuses.items():
+            self.assertEqual("OK", email_info.get("status"))
+

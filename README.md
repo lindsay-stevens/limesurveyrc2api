@@ -44,6 +44,7 @@ It's just a start, so the list of implemented methods is shorter than not.
   + add_participants
   + delete_participants
   + get_participant_properties
+  + invite_participants
 
 
 ### Error Handling
@@ -78,10 +79,21 @@ Whether or not the message is an error depends on the context of the line and th
 
 ### Running Tests
 
-- Copy tests/config.ini.tmpl to tests/config.ini and edit it with the details of
-   a RC2API enabled LimeSurvey installation.
-  - To enable the RC2API, login to LimeSurvey as an admin, go to Configuration -> Global Settings -> Interfaces -> RPC interface enabled: JSON-RPC -> Save
-- Make sure there is at least 1 survey loaded in the installation (once the create survey method is implemented, that could be used instead).
+- Copy tests/config.ini.tmpl to tests/config.ini and edit it with the details of a RC2API enabled LimeSurvey installation.
+- LimeSurvey instance setup steps:
+  - Install LimeSurvey by following the manual instructions
+  - Log in as admin, then go to Configuration -> Global Settings:
+    - Enable the RC2API, under: Interfaces -> RPC interface enabled: JSON-RPC -> Save
+    - Configure the test smtp host, under Email settings:
+      - Email method: SMTP
+      - SMTP host: localhost:10025
+      - SMTP username, password: blank
+      - Email batch size: 50
+      - Save
+  - Load at least 1 survey, by either:
+    - Logging in as admin, then Surveys -> Create a new survey, then add groups and questions by hand
+    - Logging in as admin, then Surveys -> Create a new survey, then import the .LSS file under tests/fixtures
+    - Once the methods are implemented for it, create a survey programmatically
 - From the project root folder, run the tests either:
   - For minimal result info: `python -m unittest`
   - For more detailed info: `python setup.py test`
