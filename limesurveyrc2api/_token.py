@@ -103,11 +103,11 @@ class _Token(object):
         :type token_query_dict: Dict[String, Any]
         """
         method = "get_participant_properties"
-        if token_query_dict is None:
-            token_query_dict = {"tid": token_id}
         if token_id is not None and token_query_dict is not None:
             raise ValueError(
                 "Provide either token_id or token_query_dict, not both.")
+        if token_query_dict is None:
+            token_query_dict = {"tid": token_id}
 
         params = OrderedDict([
             ('sSessionKey', self.api.session_key),
@@ -166,7 +166,7 @@ class _Token(object):
                 "Invalid session key",
                 "Error: Invalid survey ID",
                 "Error: No token table",
-                "Error: No candidate token_ids",
+                "Error: No candidate tokens",
                 "No permission",
             ]
             for message in error_messages:

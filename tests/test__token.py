@@ -88,9 +88,9 @@ class TestTokens(TestBase):
 
     def test_get_participant_properties_duplicate_failure(self):
         """Querying on a property with >1 results should return an error."""
-        participants = self.participants.append(self.participants[0])
+        self.participants.append(self.participants[0])
         added_tokens = self.api.token.add_participants(
-            survey_id=self.survey_id, participant_data=participants)
+            survey_id=self.survey_id, participant_data=self.participants)
         self.token_ids = [x["tid"] for x in added_tokens]
 
         token_query_dict = {"email": self.participants[0]["email"]}
@@ -119,3 +119,44 @@ class TestTokens(TestBase):
         for token_id, email_info in message_statuses.items():
             self.assertEqual("OK", email_info.get("status"))
 
+    def test_invite_participants_tokens_failure(self):
+        """Sending invites for non-existent tokens should return an error."""
+        token_ids = [92929292, 929292945, 2055031111]
+
+        with self.assertRaises(LimeSurveyError) as lse:
+            self.api.token.invite_participants(
+                survey_id=self.survey_id, token_ids=token_ids,
+                uninvited_only=True)
+        self.assertIn("Error: No candidate tokens", lse.exception.message)
+
+    def test_invite_participants_uninvited_failure(self):
+        """Re-sending invites with uninvited_only should return an error."""
+        added_tokens = self.api.token.add_participants(
+            survey_id=self.survey_id, participant_data=self.participants)
+        self.token_ids = [x["tid"] for x in added_tokens]
+
+        with CapturingAiosmtpdServer():
+            self.api.token.invite_participants(
+                survey_id=self.survey_id, token_ids=self.token_ids,
+                uninvited_only=True)
+        with self.assertRaises(LimeSurveyError) as lse:
+            self.api.token.invite_participants(
+                survey_id=self.survey_id, token_ids=self.token_ids,
+                uninvited_only=True)
+        self.assertIn("Error: No candidate tokens", lse.exception.message)
+
+    def test_invite_participants_uninvited_success(self):
+        """Re-sending invites with uninvited_only=False should not re-send."""
+        added_tokens = self.api.token.add_participants(
+            survey_id=self.survey_id, participant_data=self.participants)
+        self.token_ids = [x["tid"] for x in added_tokens]
+
+        with CapturingAiosmtpdServer():
+            self.api.token.invite_participants(
+                survey_id=self.survey_id, token_ids=self.token_ids,
+                uninvited_only=True)
+        with CapturingAiosmtpdServer() as cas:
+            self.api.token.invite_participants(
+                survey_id=self.survey_id, token_ids=self.token_ids,
+                uninvited_only=False)
+        self.assertEqual(len(self.participants), len(cas.messages))
