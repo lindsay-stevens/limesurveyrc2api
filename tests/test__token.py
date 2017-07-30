@@ -11,6 +11,7 @@ class TestTokens(TestBase):
 
         surveys = self.api.survey.list_surveys()
         self.survey_id = surveys[0].get('sid')
+        self.survey_id_invalid = TestBase.get_invalid_survey_id(surveys)
         self.participants = [
             {'email': 't1@example.com', 'lastname': 'LN1', 'firstname': 'FN1'},
             {'email': 't2@example.com', 'lastname': 'LN2', 'firstname': 'FN2'},
@@ -44,7 +45,7 @@ class TestTokens(TestBase):
 
     def test_add_participants_survey_failure(self):
         """Adding participants to an invalid survey should return an error."""
-        survey_id = self.survey_id + 9
+        survey_id = self.survey_id_invalid
 
         with self.assertRaises(LimeSurveyError) as ctx:
             self.api.token.add_participants(

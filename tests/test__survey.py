@@ -30,7 +30,7 @@ class TestSurveys(TestBase):
     def test_list_questions_failure(self):
         """Listing questions for an invalid survey should returns an error."""
         surveys = self.api.survey.list_surveys()
-        survey_id = surveys[0].get('sid') + 9
+        survey_id = TestBase.get_invalid_survey_id(surveys)
 
         with self.assertRaises(LimeSurveyError) as ctx:
             self.api.survey.list_questions(survey_id)
