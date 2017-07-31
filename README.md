@@ -44,7 +44,9 @@ It's just a start, so the list of implemented methods is shorter than not.
   + add_participants
   + delete_participants
   + get_participant_properties
+  + get_summary
   + invite_participants
+  + list_participants
 
 
 ### Error Handling
