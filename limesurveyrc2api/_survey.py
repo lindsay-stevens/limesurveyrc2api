@@ -17,8 +17,8 @@ class _Survey(object):
         """
         method = "list_surveys"
         params = OrderedDict([
-            ('sSessionKey', self.api.session_key),
-            ('iSurveyID', username or self.api.username)
+            ("sSessionKey", self.api.session_key),
+            ("iSurveyID", username or self.api.username)
         ])
         response = self.api.query(method=method, params=params)
         response_type = type(response)
@@ -52,10 +52,10 @@ class _Survey(object):
         """
         method = "list_questions"
         params = OrderedDict([
-            ('sSessionKey', self.api.session_key),
-            ('iSurveyID', survey_id),
-            ('iGroupID', group_id),
-            ('sLanguage', language)
+            ("sSessionKey", self.api.session_key),
+            ("iSurveyID", survey_id),
+            ("iGroupID", group_id),
+            ("sLanguage", language)
         ])
         response = self.api.query(method=method, params=params)
         response_type = type(response)

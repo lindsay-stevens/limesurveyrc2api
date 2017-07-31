@@ -15,14 +15,14 @@ class CapturingAiosmtpdHandler:
 
     async def handle_RCPT(
             self, server, session, envelope, address, rcpt_options):
-        if not address.endswith('@example.com'):
-            return '550 not relaying to that domain'
+        if not address.endswith("@example.com"):
+            return "550 not relaying to that domain"
         envelope.rcpt_tos.append(address)
-        return '250 OK'
+        return "250 OK"
 
     async def handle_DATA(self, server, session, envelope):
         self.context.messages.append(envelope)
-        return '250 Message accepted for delivery'
+        return "250 Message accepted for delivery"
 
 
 class CapturingAiosmtpdServer:

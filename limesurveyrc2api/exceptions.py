@@ -5,4 +5,4 @@ class LimeSurveyError(Exception):
         message = [base_err, method]
         if args is not None:
             message += [str(x) for x in args]
-        self.message = ' | '.join(message)
+        self.message = " | ".join(message)

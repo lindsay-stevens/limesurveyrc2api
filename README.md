@@ -94,6 +94,8 @@ Whether or not the message is an error depends on the context of the line and th
     - Logging in as admin, then Surveys -> Create a new survey, then add groups and questions by hand
     - Logging in as admin, then Surveys -> Create a new survey, then import the .LSS file under tests/fixtures
     - Once the methods are implemented for it, create a survey programmatically
+  - Activate the survey: Surveys -> SurveyName -> Activate this Survey
+  - Initialise participants table: Survey -> SurveyName -> Survey Participants -> Initialise participants table
 - From the project root folder, run the tests either:
   - For minimal result info: `python -m unittest`
   - For more detailed info: `python setup.py test`

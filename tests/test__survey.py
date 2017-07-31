@@ -18,20 +18,14 @@ class TestSurveys(TestBase):
 
     def test_list_questions_success(self):
         """Listing questions for a survey should return a question list."""
-        surveys = self.api.survey.list_surveys()
-        survey_id = surveys[0].get('sid')
-
-        result = self.api.survey.list_questions(survey_id)
+        result = self.api.survey.list_questions(survey_id=self.survey_id)
         for question in result:
-            self.assertEqual(survey_id, question["sid"])
+            self.assertEqual(self.survey_id, question["sid"])
             self.assertIsNotNone(question["gid"])
             self.assertIsNotNone(question["qid"])
 
     def test_list_questions_failure(self):
         """Listing questions for an invalid survey should returns an error."""
-        surveys = self.api.survey.list_surveys()
-        survey_id = TestBase.get_invalid_survey_id(surveys)
-
         with self.assertRaises(LimeSurveyError) as ctx:
-            self.api.survey.list_questions(survey_id)
+            self.api.survey.list_questions(self.survey_id_invalid)
         self.assertIn("Error: Invalid survey ID", ctx.exception.message)
