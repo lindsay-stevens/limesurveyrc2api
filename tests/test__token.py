@@ -236,7 +236,7 @@ class TestTokensWithExisting(TestBase):
         """Querying for participants should return attrs with expected types."""
         result = self.api.token.list_participants(survey_id=self.survey_id)[0]
         return_types_top = [
-            ("tid", int),
+            ("tid", str),
             ("token", str),
             ("participant_info", dict),
         ]
@@ -282,7 +282,7 @@ class TestTokensWithExisting(TestBase):
         result = self.api.token.list_participants(survey_id=self.survey_id)
         result_token_ids = [x["tid"] for x in result]
         for token_id in self.token_ids:
-            self.assertIn(int(token_id), result_token_ids)
+            self.assertIn(token_id, result_token_ids)
 
     def test_list_participants_conditions_failure(self):
         """Querying with a condition matching none should result in an error."""
