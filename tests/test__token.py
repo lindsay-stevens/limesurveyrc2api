@@ -159,6 +159,8 @@ class TestTokensWithExisting(TestBase):
         cls.added_tokens = cls.api.token.add_participants(
             survey_id=cls.survey_id, participant_data=cls.participants)
         cls.token_ids = [x["tid"] for x in cls.added_tokens]
+        cls.api.token.invite_participants(survey_id=cls.survey_id,
+                                          token_ids=cls.token_ids)
 
     @classmethod
     def tearDownClass(cls):
@@ -290,3 +292,42 @@ class TestTokensWithExisting(TestBase):
             self.api.token.list_participants(
                 survey_id=self.survey_id, conditions={"email": "not_an_email"})
         self.assertIn("No survey participants found.", lse.exception.message)
+
+    def test_remind_participants_success(self):
+        """ Should return array of result of each email send action and a
+        count of invitations left to send in status key. """
+        with CapturingAiosmtpdServer() as cas:
+            result = self.api.token.remind_participants(
+                survey_id=self.survey_id)
+        overall_status = result.pop("status")
+        self.assertEqual("0 left to send", overall_status)
+        for token_id, email_info in result.items():
+            self.assertEqual("OK", email_info.get("status"))
+            # TODO: cas.messages is [] here too...
+
+    def test_remind_participants_success_individual_token(self):
+        """ If token_ids is specified only remind those tokens. """
+        remind_tokens = self.token_ids[:1]
+        with CapturingAiosmtpdServer() as cas:
+            result = self.api.token.remind_participants(
+                self.survey_id, token_ids=remind_tokens)
+        self.assertEqual(len(result), 2)  # token and general status
+        self.assertIn(remind_tokens[0], result)
+
+    def test_remind_participants_failure_min_days_between(self):
+        """ Only remind participants if min days between last reminder. """
+        with CapturingAiosmtpdServer():
+            self.api.token.remind_participants(self.survey_id)
+        with self.assertRaises(LimeSurveyError) as lse:
+            self.api.token.remind_participants(
+                survey_id=self.survey_id, min_days_between=1)
+        self.assertIn("Error: No candidate tokens", lse.exception.message)
+
+    def test_remind_participants_failure_max_reminders_count(self):
+        """ Only remind participants if min days between last reminder. """
+        with CapturingAiosmtpdServer():
+            self.api.token.remind_participants(self.survey_id)
+        with self.assertRaises(LimeSurveyError) as lse:
+            self.api.token.remind_participants(
+                survey_id=self.survey_id, max_reminders=1)
+        self.assertIn("Error: No candidate tokens", lse.exception.message)
