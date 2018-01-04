@@ -66,3 +66,4 @@ class TestSurveys(TestBase):
         new_survey_id = self.api.survey.import_survey(s, new_name='delete_me')
         result = self.api.survey.delete_survey(new_survey_id)
         self.assertEqual("OK", result["status"])
+
