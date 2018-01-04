@@ -36,3 +36,13 @@ class TestSurveys(TestBase):
         new_survey_id = self.api.survey.import_survey(s, new_name='delete_me')
         result = self.api.survey.delete_survey(new_survey_id)
         self.assertEqual("OK", result["status"])
+
+    def test_export_responses_success_different_document_types(self):
+        """ Should return requested file as base64 encoded string. """
+        for extension in ['pdf', 'csv', 'xls', 'doc', 'json']:
+            result = self.api.survey.export_responses(self.survey_id,
+                                                      document_type=extension)
+            self.assertIs(type(result), str)
+
+    # TODO: add tests for other parameters of export_responses
+
