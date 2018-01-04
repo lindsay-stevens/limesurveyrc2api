@@ -29,3 +29,10 @@ class TestSurveys(TestBase):
         with self.assertRaises(LimeSurveyError) as ctx:
             self.api.survey.list_questions(self.survey_id_invalid)
         self.assertIn("Error: Invalid survey ID", ctx.exception.message)
+
+    def test_copy_survey_success(self):
+        """ Copying a survey should return array with new survey id. """
+        result = self.api.survey.copy_survey(self.survey_id, "copy_test")
+        # fails because result is None
+        # TODO: Why is this?
+        self.assertIn("newsid", result.keys())

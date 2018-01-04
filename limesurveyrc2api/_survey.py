@@ -78,3 +78,38 @@ class _Survey(object):
         else:
             assert response_type is list
         return response
+
+    def copy_survey(self, survey_id_org, new_name):
+        # TODO: Make it work
+        """ RCP Routine to copy a survey.
+        
+        Parameters
+        :param survey_id_org: ID of the source survey.
+        :type survey_id_org: Integer
+        :param new_name: Name of the new survey.
+        :type new_name: String
+        """
+        warnings.warn("This method is not working yet!", RuntimeWarning)
+        method = "copy_survey"
+        params = OrderedDict([
+            ("sSessionKey", self.api.session_key),
+            ("iSurveyID_org", survey_id_org),
+            ("sNewname", new_name)
+        ])
+        response = self.api.query(method=method, params=params)
+        response_type = type(response)
+
+        if response_type is dict and "status" in response:
+            status = response["status"]
+            error_messages = [
+                "Copy failed",
+                "Invalid session key"
+            ]
+            for message in error_messages:
+                if status == message:
+                    # return response instead of status, because of own error
+                    # message in case of "Copy failed" in response['error']
+                    raise LimeSurveyError(method, response)
+        else:
+            assert response_type is list
+        return response
