@@ -43,6 +43,7 @@ It's just a start, so the list of implemented methods is shorter than not.
   + delete_survey
   + export_responses
   + import_survey
+  + activate_survey
 - Token
   + add_participants
   + delete_participants
