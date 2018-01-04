@@ -30,6 +30,13 @@ class TestSurveys(TestBase):
             self.api.survey.list_questions(self.survey_id_invalid)
         self.assertIn("Error: Invalid survey ID", ctx.exception.message)
 
+    def test_delete_survey_success(self):
+        """ Deleting a Survey should return status OK. """
+        s = 'tests/fixtures/a_rather_interesting_questionnaire_for_testing.lss'
+        new_survey_id = self.api.survey.import_survey(s, new_name='delete_me')
+        result = self.api.survey.delete_survey(new_survey_id)
+        self.assertEqual("OK", result["status"])
+
     def test_export_responses_success_different_document_types(self):
         """ Should return requested file as base64 encoded string. """
         for extension in ['pdf', 'csv', 'xls', 'doc', 'json']:
@@ -37,4 +44,5 @@ class TestSurveys(TestBase):
                                                       document_type=extension)
             self.assertIs(type(result), str)
 
-    # TODO: add tests for other parameters
+    # TODO: add tests for other parameters of export_responses
+

@@ -79,6 +79,34 @@ class _Survey(object):
             assert response_type is list
         return response
 
+    def delete_survey(self, survey_id):
+        """ Delete a survey.
+        
+        Parameters
+        :param survey_id: The ID of the Survey to be deleted.
+        :type: Integer
+        """
+        method = "delete_survey"
+        params = OrderedDict([
+            ("sSessionKey", self.api.session_key),
+            ("iSurveyID", survey_id)
+        ])
+        response = self.api.query(method=method, params=params)
+        response_type = type(response)
+
+        if response_type is dict and "status" in response:
+            status = response["status"]
+            error_messages = [
+                "No permission",
+                "Invalid session key"
+            ]
+            for message in error_messages:
+                if status == message:
+                    raise LimeSurveyError(method, status)
+        else:
+            assert response_type is list
+        return response
+
     def export_responses(self, survey_id, document_type, language_code=None,
                          completion_status='all', heading_type='code',
                          response_type='short', from_response_id=None,
@@ -135,5 +163,5 @@ class _Survey(object):
                 if status == message:
                     raise LimeSurveyError(method, status)
         else:
-            assert response_type is str
+            assert response_type is list
         return response
