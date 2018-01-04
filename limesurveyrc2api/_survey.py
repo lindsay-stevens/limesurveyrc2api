@@ -218,3 +218,33 @@ class _Survey(object):
         else:
             assert response_type is int  # the new survey id
         return response
+
+    def activate_survey(self, survey_id):
+        """ Activate an existing survey.
+        
+        Parameters
+        :param survey_id: Id of the Survey to be activated.
+        :type survey_id: Integer
+        """
+        method = "activate_survey"
+        params = OrderedDict([
+            ("sSessionKey", self.api.session_key),
+            ("iSurveyID", survey_id)
+        ])
+        response = self.api.query(method=method, params=params)
+        response_type = type(response)
+
+        if response_type is dict and "status" in response:
+            status = response["status"]
+            error_messages = [
+                "Error: Invalid survey ID",
+                "Error: ...",  # TODO: what could be output of ActivateResults?
+                "No permission",
+                "Invalid session key"
+            ]
+            for message in error_messages:
+                if status == message:
+                    raise LimeSurveyError(method, status)
+        else:
+            assert response_type is list
+        return response
