@@ -44,9 +44,14 @@ class TestSurveys(TestBase):
             'tests/fixtures/an_other_questionnaire_different_fileformat.lsa',
             'tests/fixtures/same_questionnaire_different_fileformat.txt'
         ]
+        new_survey_ids = []  # for deleting after test
         for file in valid_files:
-            result = self.api.survey.import_survey(file, 'copy_test_%s' % file)
-        self.assertIs(int, type(result))
+            new_name = 'copy_test_%s' % file[-3:]
+            result = self.api.survey.import_survey(file, new_name)
+            self.assertIs(int, type(result))
+            new_survey_ids.append(result)
+        for new_survey_id in new_survey_ids:  # delete new surveys
+            self.api.survey.delete_survey(new_survey_id)
 
     def test_import_survey_failure_invalid_file_extension(self):
         """ Survey with invalid file extension should raise an error. """
@@ -54,3 +59,10 @@ class TestSurveys(TestBase):
         with self.assertRaises(LimeSurveyError) as ctx:
             self.api.survey.import_survey(invalid)
         self.assertIn("Invalid extension", ctx.exception.message)
+
+    def test_delete_survey_success(self):
+        """ Deleting a Survey should return status OK. """
+        s = 'tests/fixtures/a_rather_interesting_questionnaire_for_testing.lss'
+        new_survey_id = self.api.survey.import_survey(s, new_name='delete_me')
+        result = self.api.survey.delete_survey(new_survey_id)
+        self.assertEqual("OK", result["status"])

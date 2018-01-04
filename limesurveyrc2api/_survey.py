@@ -1,3 +1,4 @@
+import warnings
 from collections import OrderedDict
 from limesurveyrc2api.exceptions import LimeSurveyError
 from os.path import splitext
@@ -88,6 +89,7 @@ class _Survey(object):
         :param new_name: Name of the new survey.
         :type new_name: String
         """
+        warnings.warn("This method is not working yet!", RuntimeWarning)
         method = "copy_survey"
         params = OrderedDict([
             ("sSessionKey", self.api.session_key),
@@ -120,12 +122,18 @@ class _Survey(object):
         :param path_to_import_survey: Path to survey as file to copy.
         :type path_to_import_survey: String
         :param new_name (optional): The optional new name of the survey
+                    Important! Seems only to work if lss file is given!
         :type new_name: String
         :param dest_survey_id (optional): This is the new ID of the survey - 
                           if already used a random one will be taken instead
         :type dest_survey_id: Integer
         """
         import_datatype = splitext(path_to_import_survey)[1][1:]
+        # TODO: Naming seems only to work with lss files - why?
+        if import_datatype == 'lss' and new_name:
+            warnings.warn("New naming seems only to work with lss files",
+                          RuntimeWarning)
+        # encode import data
         with open(path_to_import_survey, 'rb') as f:
             # import data must be a base 64 encoded string
             import_data = b64encode(f.read())
@@ -147,7 +155,7 @@ class _Survey(object):
         if response_type is dict and "status" in response:
             status = response["status"]
             error_messages = [
-                "Error: ...",  # TODO: What might the error message of ImportResults be?
+                "Error: ...",  # TODO: Unclear what might be returned here
                 "Invalid extension",
                 "No permission",
                 "Invalid session key"
@@ -158,3 +166,32 @@ class _Survey(object):
         else:
             assert response_type is int  # the new survey id
         return response
+
+    def delete_survey(self, survey_id):
+        """ Delete a survey.
+        
+        Parameters
+        :param survey_id: The ID of the Survey to be deleted.
+        :type: Integer
+        """
+        method = "delete_survey"
+        params = OrderedDict([
+            ("sSessionKey", self.api.session_key),
+            ("iSurveyID", survey_id)
+        ])
+        response = self.api.query(method=method, params=params)
+        response_type = type(response)
+
+        if response_type is dict and "status" in response:
+            status = response["status"]
+            error_messages = [
+                "No permission",
+                "Invalid session key"
+            ]
+            for message in error_messages:
+                if status == message:
+                    raise LimeSurveyError(method, status)
+        else:
+            assert response_type is list
+        return response
+
