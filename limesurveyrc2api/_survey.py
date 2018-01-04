@@ -173,10 +173,10 @@ class _Survey(object):
         Parameters
         :param path_to_import_survey: Path to survey as file to copy.
         :type path_to_import_survey: String
-        :param new_name (optional): The optional new name of the survey
+        :param new_name: (optional) The optional new name of the survey
                     Important! Seems only to work if lss file is given!
         :type new_name: String
-        :param dest_survey_id (optional): This is the new ID of the survey - 
+        :param dest_survey_id: (optional) This is the new ID of the survey - 
                           if already used a random one will be taken instead
         :type dest_survey_id: Integer
         """
