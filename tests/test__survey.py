@@ -29,3 +29,12 @@ class TestSurveys(TestBase):
         with self.assertRaises(LimeSurveyError) as ctx:
             self.api.survey.list_questions(self.survey_id_invalid)
         self.assertIn("Error: Invalid survey ID", ctx.exception.message)
+
+    def test_export_responses_success_different_document_types(self):
+        """ Should return requested file as base64 encoded string. """
+        for extension in ['pdf', 'csv', 'xls', 'doc', 'json']:
+            result = self.api.survey.export_responses(self.survey_id,
+                                                      document_type=extension)
+            self.assertIs(type(result), str)
+
+    # TODO: add tests for other parameters
