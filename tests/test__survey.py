@@ -68,3 +68,15 @@ class TestSurveys(TestBase):
         with self.assertRaises(LimeSurveyError) as ctx:
             self.api.survey.import_survey(invalid)
         self.assertIn("Invalid extension", ctx.exception.message)
+
+    def test_activate_survey_success(self):
+        """ In case of success result of activation as array is returned. """
+        non_active_survey_path = (
+            'tests/fixtures/same_questionnaire_different_fileformat.txt')
+        non_active_survey_id = self.api.survey.import_survey(
+            non_active_survey_path)
+        result = self.api.survey.activate_survey(non_active_survey_id)
+        self.assertEqual(result['status'], 'OK')
+        # TODO: if get_survey_properties is implemented check active status
+        # clean up
+        self.api.survey.delete_survey(non_active_survey_id)
