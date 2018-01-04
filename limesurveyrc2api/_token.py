@@ -13,7 +13,7 @@ class _Token(object):
         Add participants to the specified survey.
 
         Parameters
-        :param survey_id: ID of survey to delete participants from.
+        :param survey_id: ID of survey to add participants.
         :type survey_id: Integer
         :param participant_data: List of participant detail dictionaries.
         :type participant_data: List[Dict]
