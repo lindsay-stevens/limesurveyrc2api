@@ -163,5 +163,5 @@ class _Survey(object):
                 if status == message:
                     raise LimeSurveyError(method, status)
         else:
-            assert response_type is list
+            assert response_type is str
         return response
