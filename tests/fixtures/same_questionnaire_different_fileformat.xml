@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<questionnaire id="772267">
+  <title>A Rather Interesting Questionnaire for Testing</title>
+  <investigator/>
+  <dataCollector/>
+  <section id="431">
+    <sectionInfo>
+      <position>title</position>
+      <text>Demographics</text>
+      <administration>self</administration>
+    </sectionInfo>
+    <sectionInfo>
+      <position>before</position>
+      <text>Some questions about you.</text>
+      <administration>self</administration>
+    </sectionInfo>
+    <question>
+      <text>What is your country of birth?</text>
+      <response varName="cob">
+        <free>
+          <format>longtext</format>
+          <length>40</length>
+          <label/>
+        </free>
+      </response>
+    </question>
+    <question>
+      <text>What is your year of birth?</text>
+      <response varName="yob">
+        <free>
+          <format>integer</format>
+          <length>4</length>
+          <label/>
+        </free>
+      </response>
+    </question>
+    <question>
+      <text>What is your favourite colour?</text>
+      <response varName="fcol">
+        <fixed>
+          <category>
+            <label>Red</label>
+            <value>1</value>
+          </category>
+          <category>
+            <label>Green</label>
+            <value>2</value>
+          </category>
+          <category>
+            <label>Blue</label>
+            <value>3</value>
+          </category>
+          <category>
+            <label>Yellow</label>
+            <value>4</value>
+          </category>
+          <category>
+            <label>Orange</label>
+            <value>5</value>
+          </category>
+          <category>
+            <label>Other</label>
+            <value>-oth-</value>
+            <contingentQuestion varName="fcolother">
+              <text>Other</text>
+              <length>24</length>
+            </contingentQuestion>
+          </category>
+        </fixed>
+      </response>
+    </question>
+  </section>
+</questionnaire>

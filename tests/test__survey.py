@@ -29,3 +29,54 @@ class TestSurveys(TestBase):
         with self.assertRaises(LimeSurveyError) as ctx:
             self.api.survey.list_questions(self.survey_id_invalid)
         self.assertIn("Error: Invalid survey ID", ctx.exception.message)
+
+    def test_delete_survey_success(self):
+        """ Deleting a Survey should return status OK. """
+        s = 'tests/fixtures/a_rather_interesting_questionnaire_for_testing.lss'
+        new_survey_id = self.api.survey.import_survey(s, new_name='delete_me')
+        result = self.api.survey.delete_survey(new_survey_id)
+        self.assertEqual("OK", result["status"])
+
+    def test_export_responses_success_different_document_types(self):
+        """ Should return requested file as base64 encoded string. """
+        for extension in ['pdf', 'csv', 'xls', 'doc', 'json']:
+            result = self.api.survey.export_responses(self.survey_id,
+                                                      document_type=extension)
+            self.assertIs(type(result), str)
+
+    # TODO: add tests for other parameters of export_responses
+
+    def test_import_survey_success_lss(self):
+        """ Importing a survey should return the id of the new survey. """
+        valid_files = [
+            'tests/fixtures/a_rather_interesting_questionnaire_for_testing.lss',
+            'tests/fixtures/an_other_questionnaire_different_fileformat.lsa',
+            'tests/fixtures/same_questionnaire_different_fileformat.txt'
+        ]
+        new_survey_ids = []  # for deleting after test
+        for file in valid_files:
+            new_name = 'copy_test_%s' % file[-3:]
+            result = self.api.survey.import_survey(file, new_name)
+            self.assertIs(int, type(result))
+            new_survey_ids.append(result)
+        for new_survey_id in new_survey_ids:  # delete new surveys
+            self.api.survey.delete_survey(new_survey_id)
+
+    def test_import_survey_failure_invalid_file_extension(self):
+        """ Survey with invalid file extension should raise an error. """
+        invalid = 'tests/fixtures/same_questionnaire_different_fileformat.xml'
+        with self.assertRaises(LimeSurveyError) as ctx:
+            self.api.survey.import_survey(invalid)
+        self.assertIn("Invalid extension", ctx.exception.message)
+
+    def test_activate_survey_success(self):
+        """ In case of success result of activation as array is returned. """
+        non_active_survey_path = (
+            'tests/fixtures/same_questionnaire_different_fileformat.txt')
+        non_active_survey_id = self.api.survey.import_survey(
+            non_active_survey_path)
+        result = self.api.survey.activate_survey(non_active_survey_id)
+        self.assertEqual(result['status'], 'OK')
+        # TODO: if get_survey_properties is implemented check active status
+        # clean up
+        self.api.survey.delete_survey(non_active_survey_id)
