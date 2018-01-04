@@ -28,9 +28,12 @@ class TestBase(unittest.TestCase):
             username=cls.username)
         cls.session_key = None
         cls.api.open(password=cls.password)
-
-        surveys = sorted(cls.api.survey.list_surveys(), key=itemgetter("sid"))
-        cls.survey_id = surveys[0].get("sid")
+        if not confparser['test']['survey_id']:
+            surveys = sorted(cls.api.survey.list_surveys(),
+                             key=itemgetter("sid"))
+            cls.survey_id = surveys[0].get("sid")
+        else:
+            cls.survey_id = confparser['test']['survey_id']
         cls.survey_id_invalid = -1
 
     @classmethod
