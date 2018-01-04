@@ -29,3 +29,28 @@ class TestSurveys(TestBase):
         with self.assertRaises(LimeSurveyError) as ctx:
             self.api.survey.list_questions(self.survey_id_invalid)
         self.assertIn("Error: Invalid survey ID", ctx.exception.message)
+
+    def test_copy_survey_success(self):
+        """ Copying a survey should return array with new survey id. """
+        result = self.api.survey.copy_survey(self.survey_id, "copy_test")
+        # fails because result is None
+        # TODO: Why is this?
+        self.assertIn("newsid", result.keys())
+
+    def test_import_survey_success_lss(self):
+        """ Importing a survey should return the id of the new survey. """
+        valid_files = [
+            'tests/fixtures/a_rather_interesting_questionnaire_for_testing.lss',
+            'tests/fixtures/an_other_questionnaire_different_fileformat.lsa',
+            'tests/fixtures/same_questionnaire_different_fileformat.txt'
+        ]
+        for file in valid_files:
+            result = self.api.survey.import_survey(file, 'copy_test_%s' % file)
+        self.assertIs(int, type(result))
+
+    def test_import_survey_failure_invalid_file_extension(self):
+        """ Survey with invalid file extension should raise an error. """
+        invalid = 'tests/fixtures/same_questionnaire_different_fileformat.xml'
+        with self.assertRaises(LimeSurveyError) as ctx:
+            self.api.survey.import_survey(invalid)
+        self.assertIn("Invalid extension", ctx.exception.message)
