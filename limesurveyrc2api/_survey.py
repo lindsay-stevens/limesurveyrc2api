@@ -182,7 +182,7 @@ class _Survey(object):
         """
         import_datatype = splitext(path_to_import_survey)[1][1:]
         # TODO: Naming seems only to work with lss files - why?
-        if import_datatype == 'lss' and new_name:
+        if import_datatype != 'lss' and new_name:
             warnings.warn("New naming seems only to work with lss files",
                           RuntimeWarning)
         # encode import data
