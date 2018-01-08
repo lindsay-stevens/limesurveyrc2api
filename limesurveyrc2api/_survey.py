@@ -248,3 +248,38 @@ class _Survey(object):
         else:
             assert response_type is list
         return response
+
+    def activate_tokens(self, survey_id, attribute_fields=[]):
+        """
+        
+        Parameters
+        :param survey_id: ID of the Survey where a participants table will
+            be created for.
+        :type survey_id: Integer
+        :param attribute_fields: An array of integer describing any additional 
+            attribute fiields.
+        :type attribute_fields: Array
+        """
+        method = "activate_tokens"
+        params = OrderedDict([
+            ("sSessionKey", self.api.session_key),
+            ("iSurveyId", survey_id),
+            ("aAttributeFields", attribute_fields)
+        ])
+        response = self.api.query(method=method, params=params)
+        response_type = type(response)
+
+        if response_type is dict and "status" in response:
+            status = response["status"]
+            error_messages = [
+                "Error: Invalid survey ID",
+                "Survey participants table could not be created",
+                "No permission",
+                "Invalid session key"
+            ]
+            for message in error_messages:
+                if status == message:
+                    raise LimeSurveyError(method, status)
+        else:
+            assert response_type is list
+        return response

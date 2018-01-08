@@ -80,3 +80,23 @@ class TestSurveys(TestBase):
         # TODO: if get_survey_properties is implemented check active status
         # clean up
         self.api.survey.delete_survey(non_active_survey_id)
+
+    def test_activate_tokens_success(self):
+        """ In case of success return response. """
+        new_survey_path = (
+            'tests/fixtures/same_questionnaire_different_fileformat.txt')
+        new_survey_id = self.api.survey.import_survey(new_survey_path)
+        response = self.api.survey.activate_tokens(new_survey_id)
+        self.assertEqual(response, {'status': 'OK'})
+        # clean up
+        self.api.survey.delete_survey(new_survey_id)
+
+    def test_activate_tokens_failure(self):
+        """ A wrong survey_id should raise an exception. """
+        new_survey_path = (
+            'tests/fixtures/same_questionnaire_different_fileformat.txt')
+        with self.assertRaises(LimeSurveyError) as ctx:
+            self.api.survey.activate_tokens(self.survey_id_invalid)
+        self.assertIn("Error: Invalid survey ID", ctx.exception.message)
+
+    # TODO: test for attributeFields
