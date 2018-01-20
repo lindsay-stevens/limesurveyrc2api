@@ -45,6 +45,7 @@ It's just a start, so the list of implemented methods is shorter than not.
   + import_survey
   + activate_survey
   + activate_tokens
+  + list_groups
 - Token
   + add_participants
   + delete_participants
