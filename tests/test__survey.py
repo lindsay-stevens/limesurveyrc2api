@@ -99,7 +99,7 @@ class TestSurveys(TestBase):
 
     # TODO: test for attributeFields
 
-    def test_list_groups(self):
+    def test_list_groups_success(self):
         """ Listing groups for a survey should return a group list. """
         response = self.api.survey.list_groups(self.survey_id)
         for group in response:

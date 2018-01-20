@@ -283,3 +283,33 @@ class _Survey(object):
         else:
             assert response_type is list
         return response
+
+    def list_groups(self, survey_id):
+        """ Return the ids and all attributes of groups belonging to survey.
+        
+        Parameters
+        :param survey_id: ID of the survey containing the groups.
+        :rtype survey_id: Integer
+        """
+        method = "list_groups"
+        params = OrderedDict([
+            ("sSessionKey", self.api.session_key),
+            ("iSurveyID", survey_id)
+        ])
+        response = self.api.query(method=method, params=params)
+        response_type = type(response)
+
+        if response_type is dict and "status" in response:
+            status = response["status"]
+            error_messages = [
+                "Error: Invalid survey ID",
+                "No groups found",
+                "No permission"
+                "Invalid S ession key"  # typo in remotecontrol_handle.php
+            ]
+            for message in error_messages:
+                if status == message:
+                    raise LimeSurveyError(method, status)
+        else:
+            assert response_type is list
+        return response
