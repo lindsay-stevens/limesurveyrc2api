@@ -40,8 +40,8 @@ class TestSurveys(TestBase):
     def test_export_responses_success_different_document_types(self):
         """ Should return requested file as base64 encoded string. """
         for extension in ['pdf', 'csv', 'xls', 'doc', 'json']:
-            result = self.api.survey.export_responses(self.survey_id,
-                                                      document_type=extension)
+            result = self.api.survey.export_responses(
+                self.survey_id, document_type=extension)
             self.assertIs(type(result), str)
 
     # TODO: add tests for other parameters of export_responses
@@ -87,16 +87,28 @@ class TestSurveys(TestBase):
             'tests/fixtures/same_questionnaire_different_fileformat.txt')
         new_survey_id = self.api.survey.import_survey(new_survey_path)
         response = self.api.survey.activate_tokens(new_survey_id)
-        self.assertEqual(response, {'status': 'OK'})
+        self.assertEqual(response['status'], 'OK')
         # clean up
         self.api.survey.delete_survey(new_survey_id)
 
     def test_activate_tokens_failure(self):
         """ A wrong survey_id should raise an exception. """
-        new_survey_path = (
-            'tests/fixtures/same_questionnaire_different_fileformat.txt')
         with self.assertRaises(LimeSurveyError) as ctx:
             self.api.survey.activate_tokens(self.survey_id_invalid)
         self.assertIn("Error: Invalid survey ID", ctx.exception.message)
 
     # TODO: test for attributeFields
+
+    def test_list_groups(self):
+        """ Listing groups for a survey should return a group list. """
+        response = self.api.survey.list_groups(self.survey_id)
+        for group in response:
+            self.assertEqual(group["sid"], self.survey_id)
+            self.assertIsNotNone(group["group_name"])
+            self.assertIsNotNone(group["gid"])
+
+    def test_list_groups_failure(self):
+        """Listing questions for an invalid survey should return an error."""
+        with self.assertRaises(LimeSurveyError) as ctx:
+            self.api.survey.list_questions(self.survey_id_invalid)
+        self.assertIn("Error: Invalid survey ID", ctx.exception.message)
