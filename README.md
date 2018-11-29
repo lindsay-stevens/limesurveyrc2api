@@ -40,6 +40,12 @@ It's just a start, so the list of implemented methods is shorter than not.
 - Survey
   + list_surveys
   + list_questions
+  + delete_survey
+  + export_responses
+  + import_survey
+  + activate_survey
+  + activate_tokens
+  + list_groups
 - Token
   + add_participants
   + delete_participants
@@ -47,6 +53,7 @@ It's just a start, so the list of implemented methods is shorter than not.
   + get_summary
   + invite_participants
   + list_participants
+  + remind_participants
 
 
 ### Error Handling

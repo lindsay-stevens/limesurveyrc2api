@@ -13,7 +13,7 @@ class _Token(object):
         Add participants to the specified survey.
 
         Parameters
-        :param survey_id: ID of survey to delete participants from.
+        :param survey_id: ID of survey to add participants.
         :type survey_id: Integer
         :param participant_data: List of participant detail dictionaries.
         :type participant_data: List[Dict]
@@ -277,6 +277,45 @@ class _Token(object):
             assert response_type is list
         return response
 
-    def remind_participants(self):
-        # TODO
-        raise NotImplementedError
+    def remind_participants(self, survey_id, min_days_between=None,
+                            max_reminders=None, token_ids=False):
+        """ Send a reminder to participants in a survey.
+        
+        Returns result of sending.
+        
+        Parameters
+        :param survey_id: ID of the Survey that participants belong.
+        :type survey_id: Integer
+        :param min_days_between: (optional) Days from last reminder.
+        :type min_days_between: Integer
+        :param max_reminders: (optional) Maximum reminders count.
+        :type max_reminders: Integer
+        :param token_ids: (optional filter) IDs of the participant to remind.
+        :type token_ids: array
+        """
+        method = "remind_participants"
+        params = OrderedDict([
+            ("sSessionKey", self.api.session_key),
+            ("iSurveyID", survey_id),
+            ("iMinDaysBetween", min_days_between),
+            ("iMaxReminders", max_reminders),
+            ("aTokenIds", token_ids)
+        ])
+        response = self.api.query(method=method, params=params)
+        response_type = type(response)
+
+        if response_type is dict and "status" in response:
+            status = response["status"]
+            error_messages = [
+                "Error: No survey participants table",
+                "Error: No candidate tokens",
+                "Error: Invalid survey ID",
+                "No permission",
+                "Invalid Session Key"
+            ]
+            for message in error_messages:
+                if status == message:
+                    raise LimeSurveyError(method, status)
+        else:
+            assert response_type is list
+        return response
