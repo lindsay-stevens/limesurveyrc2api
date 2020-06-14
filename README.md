@@ -47,6 +47,8 @@ It's just a start, so the list of implemented methods is shorter than not.
   + get_summary
   + invite_participants
   + list_participants
+- Export
+  + export_responses
 
 
 ### Error Handling

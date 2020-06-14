@@ -4,6 +4,7 @@ from collections import OrderedDict
 from limesurveyrc2api.exceptions import LimeSurveyError
 from limesurveyrc2api._survey import _Survey
 from limesurveyrc2api._token import _Token
+from limesurveyrc2api._export import _Export
 
 
 class LimeSurvey(object):
@@ -15,6 +16,7 @@ class LimeSurvey(object):
         self.session_key = None
         self.survey = _Survey(self)  # Setup and admin of surveys.
         self.token = _Token(self)    # Participants and their data.
+        self.export = _Export(self)
 
     def open(self, password):
         """
