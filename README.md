@@ -6,6 +6,18 @@
 This module provides a class which can be used as a client for interacting with LimeSurvey Remote Control 2 API.
 
 
+### Install
+From pip:
+```shell
+pip install limesurveyrc2api
+```
+
+or from GitHub, for example using the master branch:
+```shell
+pip install https://github.com/lindsay-stevens/limesurveyrc2api/archive/master.zip
+```
+
+
 ### Example Usage
 
 The tests are a good place to refer to for api usage, until proper docs are written, anyway. Here is how to get a list of surveys.
@@ -56,6 +68,26 @@ Where possible, error messages from the RC2API are translated into Python except
 
 
 ## Development
+
+### Setup
+```shell
+# Get a copy of the repository.
+mkdir -P ~/repos/limesurveyrc2api
+cd ~/repos/limesurveyrc2api
+git clone https://github.com/lindsay-stevens/limesurveyrc2api.git repo
+
+# Create and activate a virtual environment for the install.
+/usr/local/bin/python3.9 -m venv venv
+source venv/bin/activate
+
+# Install limesurveyrc2api, and it's development dependencies.
+cd ~/repos/limesurveyrc2api/repo
+pip install -e .
+pip install -r dev_requirements.pip
+
+# Leave the virtualenv.
+deactivate 
+```
 
 
 ### References
